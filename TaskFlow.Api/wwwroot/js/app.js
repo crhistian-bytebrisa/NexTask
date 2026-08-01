@@ -6,6 +6,7 @@ const form = document.getElementById("task-form");
 const messageEl = document.getElementById("form-message");
 const listEl = document.getElementById("task-list");
 const emptyMessageEl = document.getElementById("empty-message");
+const loadingEl = document.getElementById("loading-message");
 
 let editingTaskId = null;
 
@@ -23,6 +24,7 @@ form.addEventListener("submit", async (event) => {
     try {
         if (editingTaskId) {
             await updateTask(editingTaskId, { title, description: description || null, isCompleted: false }, true);
+            showMessage("Tarea actualizada correctamente.", "success");
         } else {
             const response = await fetch(API_URL, {
                 method: "POST",
@@ -43,11 +45,12 @@ form.addEventListener("submit", async (event) => {
         await loadTasks();
     } catch (error) {
         console.error(error);
-        showMessage("Ocurrió un error al guardar la tarea.", "error");
+        showMessage("Ocurrió un error al guardar la tarea. Intenta de nuevo.", "error");
     }
 });
 
 async function loadTasks() {
+    toggleLoading(true);
     try {
         const response = await fetch(API_URL);
         if (!response.ok) {
@@ -57,6 +60,9 @@ async function loadTasks() {
         renderTasks(tasks);
     } catch (error) {
         console.error(error);
+        showMessage("No se pudieron cargar las tareas. Verifica tu conexión.", "error");
+    } finally {
+        toggleLoading(false);
     }
 }
 
@@ -84,13 +90,19 @@ function buildTaskElement(task) {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = task.isCompleted;
-    checkbox.addEventListener("change", () =>
-        updateTask(task.id, {
-            title: task.title,
-            description: task.description,
-            isCompleted: checkbox.checked,
-        })
-    );
+    checkbox.addEventListener("change", async () => {
+        try {
+            await updateTask(task.id, {
+                title: task.title,
+                description: task.description,
+                isCompleted: checkbox.checked,
+            });
+        } catch (error) {
+            console.error(error);
+            checkbox.checked = !checkbox.checked;
+            showMessage("No se pudo actualizar el estado de la tarea.", "error");
+        }
+    });
 
     const titleEl = document.createElement("span");
     titleEl.className = "task-title";
@@ -121,7 +133,14 @@ function buildTaskElement(task) {
     editBtn.textContent = "Editar";
     editBtn.addEventListener("click", () => startEdit(task));
 
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "btn btn-danger";
+    deleteBtn.textContent = "Eliminar";
+    deleteBtn.addEventListener("click", () => confirmDelete(task));
+
     actions.appendChild(editBtn);
+    actions.appendChild(deleteBtn);
     li.appendChild(actions);
 
     return li;
@@ -143,6 +162,27 @@ async function updateTask(id, payload, silent = false) {
     }
 }
 
+function confirmDelete(task) {
+    const confirmed = window.confirm(`¿Eliminar la tarea "${task.title}"? Esta acción no se puede deshacer.`);
+    if (confirmed) {
+        deleteTask(task.id);
+    }
+}
+
+async function deleteTask(id) {
+    try {
+        const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        if (!response.ok) {
+            throw new Error("No se pudo eliminar la tarea.");
+        }
+        showMessage("Tarea eliminada.", "success");
+        await loadTasks();
+    } catch (error) {
+        console.error(error);
+        showMessage("No se pudo eliminar la tarea. Intenta de nuevo.", "error");
+    }
+}
+
 function startEdit(task) {
     editingTaskId = task.id;
     document.getElementById("title").value = task.title;
@@ -151,11 +191,16 @@ function startEdit(task) {
     const submitBtn = form.querySelector("button[type='submit']");
     submitBtn.textContent = "Guardar cambios";
     showMessage(`Editando: "${task.title}"`, "success");
+    document.getElementById("title").focus();
 }
 
 function resetSubmitButton() {
     const submitBtn = form.querySelector("button[type='submit']");
     submitBtn.textContent = "Agregar tarea";
+}
+
+function toggleLoading(isLoading) {
+    loadingEl.hidden = !isLoading;
 }
 
 function showMessage(text, type) {
