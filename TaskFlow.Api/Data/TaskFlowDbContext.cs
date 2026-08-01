@@ -15,5 +15,6 @@ public class TaskFlowDbContext : DbContext
         base.OnModelCreating(modelBuilder);
     }
 
-    public DbSet<TaskItem> Tasks => Set<TaskItem>();
+    public DbSet<TaskItem> Tasks { get; set; }
+
 }
