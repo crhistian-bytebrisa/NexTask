@@ -1,3 +1,3 @@
 <Solution>
-  <Project Path="../Proyecto/feature-1/TaskFlow.Api/TaskFlow.Api.csproj" />
+  <Project Path="TaskFlow.Api/TaskFlow.Api.csproj" />
 </Solution>
