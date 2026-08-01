@@ -76,6 +76,23 @@ public class TasksController : ControllerBase
 
         return Ok(ToDto(task));
     }
+
+    // DELETE: api/tasks/{id}
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteTask(int id)
+    {
+        var task = await _context.Tasks.FindAsync(id);
+        if (task is null)
+        {
+            return NotFound(new { message = $"No se encontró la tarea con id {id}." });
+        }
+
+        _context.Tasks.Remove(task);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     private static TaskDto ToDto(TaskItem task) => new()
     {
         Id = task.Id,
