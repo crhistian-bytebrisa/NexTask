@@ -1,0 +1,50 @@
+:root {
+  --color-bg: #f5f6fa;
+  --color-primary: #4361ee;
+  --color-primary-dark: #3a0ca3;
+  --color-text: #2b2d42;
+  --color-muted: #8d99ae;
+  --color-white: #ffffff;
+  --color-danger: #e63946;
+  --color-success: #2a9d8f;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.app-header {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.app-header h1 {
+  margin: 0 0 4px 0;
+}
+
+.subtitle {
+  margin: 0;
+  font-weight: 300;
+  opacity: 0.9;
+}
+
+.app-main {
+  max-width: 640px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.placeholder {
+  text-align: center;
+  color: var(--color-muted);
+}
