@@ -53,6 +53,29 @@ public class TasksController : ControllerBase
         return CreatedAtAction(nameof(CreateTask), new { id = task.Id }, result);
     }
 
+    // PUT: api/tasks/{id}
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<TaskDto>> UpdateTask(int id, [FromBody] UpdateTaskDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var task = await _context.Tasks.FindAsync(id);
+        if (task is null)
+        {
+            return NotFound(new { message = $"No se encontró la tarea con id {id}." });
+        }
+
+        task.Title = dto.Title.Trim();
+        task.Description = dto.Description?.Trim();
+        task.IsCompleted = dto.IsCompleted;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(ToDto(task));
+    }
     private static TaskDto ToDto(TaskItem task) => new()
     {
         Id = task.Id,
