@@ -163,3 +163,28 @@ body {
     background-color: var(--color-success);
     color: var(--color-white);
 }
+
+.task-top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .task-top-row input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+.task-actions {
+    margin-top: 10px;
+}
+
+.btn-secondary {
+    background-color: #eef0f7;
+    color: var(--color-text);
+}
+
+    .btn-secondary:hover {
+        background-color: #dfe2f0;
+    }
