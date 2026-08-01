@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TaskFlow.Api.Data;
 using TaskFlow.Api.DTOs;
 using TaskFlow.Api.Models;
@@ -14,6 +15,18 @@ public class TasksController : ControllerBase
     public TasksController(TaskFlowDbContext context)
     {
         _context = context;
+    }
+
+    // GET: api/tasks
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TaskDto>>> GetTasks()
+    {
+        var tasks = await _context.Tasks
+            .OrderBy(t => t.IsCompleted)
+            .ThenByDescending(t => t.CreatedAt)
+            .ToListAsync();
+
+        return Ok(tasks.Select(ToDto));
     }
 
     // POST: api/tasks
